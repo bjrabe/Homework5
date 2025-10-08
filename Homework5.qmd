@@ -1,7 +1,8 @@
 ---
-title: "Homework5"
+title: "Homework 5"
 format: html
 editor: visual
+code-overflow: wrap
 editor_options: 
   chunk_output_type: console
 ---
@@ -134,19 +135,129 @@ table(data_join2$school, data_join2$Medu, data_join2$Mjob)
 
 We see from the output that we have a 2 by 5 by 5 array. The number at position [1,1,5] is the number of students at "GP" school whose mothers completed higher education and work as teachers. This number is 48. Examining the rest of the row containing this value, nearly all mothers of students at Gabriel Pereira who work as teachers completed higher education (specifically, all but one). 
 
-Now we create a conditional two-way table using `table()`. 
+Now we create a conditional two-way table using `table()`. We will create a two way table of `school` and `Medu` conditioned on `Mjob`. Specifically, we will condition on mothers job being teacher. We do this conditioning using two methods. 
 
+For the first method.
 
+```{r}
+conditioned_tbl <- data_join2 |>
+  filter(Mjob == 'teacher')
 
+table(conditioned_tbl[,c('school', 'Medu')])
+```
 
+For the second method.
 
+```{r}
+table(data_join2$school, data_join2$Medu, data_join2$Mjob)[ , ,'teacher']
+```
 
+We see both methods return the same conditional two-way table. This table shows us that regardless of the school a student attends, if their mother was a teacher, then their mother was likely to have completed higher education.
 
+Now we use `dplyr` to create a two-way contingency table. We will create the same two-way table we created above. We use the `pivot_wider()` function from `tidyr` to make the result look more like the output from `table()` function.
 
+```{r}
+data_join2 |>
+  group_by(school, Medu) |>
+  summarize(count = n()) |>
+  pivot_wider(names_from = Medu, values_from = count)
+```
 
+We see that this is identical to the two-way table for `school` and `Medu` created above with the `table()` function, except that there is an `NA` where we want a zero. We can easily fix this with the `replace_na()` function from `tidyr` package.
 
+```{r}
+data_join2 |>
+  group_by(school, Medu) |>
+  summarize(count = n()) |>
+  pivot_wider(names_from = Medu, values_from = count) |>
+  replace_na(list(None = 0))
+```
 
+The final task we will do with categorical data is to create a stacked bar graph and side-by-side bar graph. We will do this with the variables `Medu` and `school`. 
 
+First we create the stacked bar graph.
+
+```{r}
+data_join2 |>
+  ggplot(aes(Medu)) + geom_bar(aes(fill = school)) + labs(x = 'Mother\'s Education Level', y = 'Counts', title = 'Distribution of Students\' Mother\'s Level of Education by School')
+```
+
+Next we create the side-by-side bar graph. We can use the same code but add a position argument. 
+
+```{r}
+data_join2 |>
+  ggplot(aes(Medu)) + geom_bar(aes(fill = school), position = 'dodge') + labs(x = 'Mother\'s Education Level', y = 'Counts', title = 'Distribution of Students\' Mother\'s Level of Education by School')
+```
+
+Viewing the plots, we gather a lot of the same information we discussed when creating contingency tables (the numerical summary for categorical data). We can see that the mothers of students at the Gabriel Pereira school have high rates of higher education. Whereas for students at the Mousinho da Silveira school, the distribution of education levels is relatively uniform. 
+
+Now it is time for some EDA on numeric variables. The numeric variables are age, absences, and the three test grade variables (G1, G2, and G3) from each data set (math and Portuguese). There are two each for G1, G2, G3, and absences, since there is a math value and a Portuguese value for each variable. There is only one age variable. This gives a total of 9 numeric variables in the `data_join2` data set. 
+
+First we find measures of center and spread for 3 of these variables. We will use `absences.x`, `absences.y`, and `G3.x`. We will use mean and median as our measures of center, and we will use standard deviation (sd) and interquartile range (IQR) as our measures of spread. We return the desired values in a tibble. 
+
+```{r}
+data_join2 |>
+  select(absences.x, absences.y, G3.x) |>
+  summarize(across(everything(), 
+            .fns = list('mean' = mean, 'median' = median, 'sd' = sd, 'IQR' = IQR),
+            .names = '{.fn}_{.col}')) |>
+  print(width = Inf)
+```
+
+The output suggests that students may have fewer absences and less variability in absences in Portuguese class than in math class. We of course would need to conduct a statistical test to confirm. 
+
+We will subset the data to find measures of center and spread for only those students who had at least one absence. 
+
+```{r}
+data_join2 |>
+  select(absences.x, absences.y, G3.x) |>
+  filter(absences.x > 0,
+         absences.y > 0) |>
+  summarize(across(everything(), 
+            .fns = list('mean' = mean, 'median' = median, 'sd' = sd, 'IQR' = IQR),
+            .names = '{.fn}_{.col}')) |>
+  print(width = Inf)
+```
+
+In this subset of students with at least one absence, we again see that students may have fewer absences and less variability in absences in Portuguese class than in math class. Like the un-subsetted case above, we would need a statistical test to confirm.
+
+Next we find the same measures of center and spread for the same variables, but we do so across the grouping variable `school`. 
+
+```{r}
+data_join2 |>
+  group_by(school) |>
+  select(absences.x, absences.y, G3.x) |>
+  summarize(across(everything(), 
+            .fns = list('mean' = mean, 'median' = median, 'sd' = sd, 'IQR' = IQR),
+            .names = '{.fn}_{.col}')) |>
+  print(width = Inf)
+```
+
+The mean number of absences in math class appear higher for Gabriel Pereira students than Mousinho da Silveira students, and yet students in Gabriel Pereira have higher mean math scores (`G3.x`). Again, we need statistical tests to confirm these differences. 
+
+Now we find measures of center and spread for the same 3 variables across two grouping variables: `school` and `sex`. 
+
+```{r}
+data_join2 |>
+  group_by(school, sex) |>
+  select(absences.x, absences.y, G3.x) |>
+  summarize(across(everything(), 
+            .fns = list('mean' = mean, 'median' = median, 'sd' = sd, 'IQR' = IQR),
+            .names = '{.fn}_{.col}')) |>
+  print(width = Inf)
+```
+
+It appears from the output that female students at Gabriel Pereira may have lower math scores on average than male students, but that there is no difference in math scores between male and female students at Mousinho da Silveira. Again, we emphasize statistical tests are needed to assess the probability that the observed difference in mean/median test scores is do to sampling variability rather than true population differences. 
+
+Next we create a correlation matrix between all the numeric variables.
+
+```{r}
+data_join2 |>
+  select(age, G1.x, G2.x, G3.x, absences.x, G1.y, G2.y, G3.y, absences.y) |>
+  cor()
+```
+
+Interesting fact...
 
 
 
