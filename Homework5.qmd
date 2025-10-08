@@ -1,0 +1,152 @@
+---
+title: "Homework5"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summarizing Student Data
+
+We begin by loading the tidyverse as we will use it throughout this assignment.
+
+```{r}
+library(tidyverse)
+```
+
+
+## Task 1: Read in the Data and Modify
+
+We start Task 1 by reading in the data in two different ways.
+
+First, we modify the code provided with the download to read in the data from a local file source and combine the two data frames. We use local paths.
+
+```{r}
+d1=read.table("student-mat.csv",sep=";",header=TRUE)
+d2=read.table("student-por.csv",sep=";",header=TRUE)
+
+d3=merge(d1,d2,by=c("school","sex","age","address","famsize","Pstatus","Medu","Fedu","Mjob","Fjob","reason","nursery","internet"))
+
+head(d3)
+```
+
+Second, we read in the data sets separately and then combine them using functions from the tidyverse. We use `inner_join()` on the variables used in the code from the website
+
+```{r}
+data_mat <- read_delim('student-mat.csv', delim = ';')
+data_por <- read_delim('student-por.csv', delim = ';')
+data_join1 <- inner_join(data_mat, data_por, by=c("school","sex","age","address","famsize","Pstatus","Medu","Fedu","Mjob","Fjob","reason","nursery","internet"))
+
+data_join1
+```
+
+The problem we see is that row 79 of `data_mat` matches multiple rows of `data-por`. This means rows won't be joined in a one-to-one fashion. 
+
+Now we do an inner join on the math and portuguese data by all variables except `G1`, `G2`, `G3`, `paid`, and `absences`. 
+
+```{r}
+data_join2 <- inner_join(data_mat, data_por, by = names(data_mat)[!(names(data_mat) %in% c('G1', 'G2', 'G3', 'paid', 'absences'))])
+data_join2
+```
+
+As expected, there are 38 variables. 28 are the matched columns which we specified in the join. The remaining 10 variables comprise the 5 pairs of G1, G2, G3, paid, and absences variables, where one member of a pair is from the math data (those ending in .x) and the other member of the pair is from the portuguese data (those ending in .y). 
+
+To complete this task, we choose 4 categorical variables we are interested in and convert these to factors in each of `data_mat`, `data_por`, and `data_join2` tibbles. We will chose `school`, `sex`, `Medu`, and `Mjob` as our categorical variables. We also choose names for some of the levels that are more interpretable than the default names.
+
+```{r}
+data_mat <- data_mat |>
+  mutate(school = as.factor(school),
+         sex = factor(sex, levels = c('F', 'M'), labels = c('Female', 'Male')),
+         Medu = factor(Medu, levels = c(4, 3, 2, 1, 0), labels = c('Higher_Ed', 'Secondary', '5th_to_9th', 'Primary', 'None')),
+         Mjob = as.factor(Mjob))
+
+data_por <- data_por |>
+  mutate(school = as.factor(school),
+         sex = factor(sex, levels = c('F', 'M'), labels = c('Female', 'Male')),
+         Medu = factor(Medu, levels = c(4, 3, 2, 1, 0), labels = c('Higher_Ed', 'Secondary', '5th_to_9th', 'Primary', 'None')),
+         Mjob = as.factor(Mjob))
+
+data_join2 <- data_join2 |>
+  mutate(school = as.factor(school),
+         sex = factor(sex, levels = c('F', 'M'), labels = c('Female', 'Male')),
+         Medu = factor(Medu, levels = c(4, 3, 2, 1, 0), labels = c('Higher_Ed', 'Secondary', '5th_to_9th', 'Primary', 'None')),
+         Mjob = as.factor(Mjob))
+```
+
+
+
+## Task 2: Summarize the Data (Very Basic EDA)
+
+On the combined data set (`data_join2`) we look at how the data is stored and document any missing values. 
+
+First, to look at how the data is stored, we call the tibble.
+
+```{r}
+data_join2
+```
+
+We see our 4 chosen categorical variables from Task 1 are now stored as factors. Several variables are stored as doubles where they would be better represented as characters or factors. An example is `Fedu`, the father's level of education. Since this variable takes on one of a small set of possible values, it is better represented as a categorical variable, rather than as a numeric variable as it is stored.  Other variables that would be better represented as factors or characters but are stored as doubles include `traveltime`, `studytime`, and `failures`. `famrel`, `freetime`, `goout`, `Dalc`, `Walc`, and `health` are all stored as doubles. These variables take values on a Likert-type scale, which we learned in ST 517 can be treated as numeric or categorical, but the preference in that course was to treat them as categorical. Therefore, these may be better served by being stored as characters or factors. All of the above changes in data types in the tibble could be made with the methods of Task 1. We will not do this here since we are not using these variables in this assignment. Finally, we see the G1, G2, G3, absences, and paid variables (for both .x and .y) are appropriately stored as doubles. 
+
+Second, we can check for missing values using base R or tidyverse. First for base R.
+
+```{r}
+colSums(is.na(data_join2))
+```
+
+We see from the output that there are no missing values.
+
+We could check the same using the tidyverse.
+
+```{r}
+sum_na <- function(v){
+  sum(is.na(v))
+}
+
+data_join2 |>
+  summarize(across(everything(), sum_na)) |>
+  print(width = Inf)
+
+```
+
+Again, we find that there are no missing values in our data.
+
+Next we do some EDA for our categorical variables. We start with a one-way contingency table using `school`. 
+
+```{r}
+table(data_join2$school)
+```
+
+The number 287 in the "GP" row is the number of students who go to the Gabriel Pereira school. From the output we see that far more students are in the "GP" school than in the "MS" school (287 vs. 33, respectively).
+
+Now we do a two-way contingency table using `school` and `Medu`.
+
+```{r}
+table(data_join2$school, data_join2$Medu)
+```
+
+The number 114 at the intersection of the `GP` row and `Higher_Ed` column is the number of students at the "GP" school who had mothers who completed higher education. This number for the "GP" school is higher than for other education levels, suggesting that if a student goes to Gabriel Pereira, then the most likely education level of their mother is higher education. 
+
+Next we create a three-way contingency table using `school`, `Medu`, and `Mjob`. 
+
+```{r}
+table(data_join2$school, data_join2$Medu, data_join2$Mjob)
+```
+
+We see from the output that we have a 2 by 5 by 5 array. The number at position [1,1,5] is the number of students at "GP" school whose mothers completed higher education and work as teachers. This number is 48. Examining the rest of the row containing this value, nearly all mothers of students at Gabriel Pereira who work as teachers completed higher education (specifically, all but one). 
+
+Now we create a conditional two-way table using `table()`. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
