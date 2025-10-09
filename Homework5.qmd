@@ -117,7 +117,7 @@ Next we do some EDA for our categorical variables. We start with a one-way conti
 table(data_join2$school)
 ```
 
-The number 287 in the "GP" row is the number of students who go to the Gabriel Pereira school. From the output we see that far more students are in the "GP" school than in the "MS" school (287 vs. 33, respectively).
+The number 287 in the "GP" column is the number of students who go to the Gabriel Pereira school. From the output we see that far more students are in the "GP" school than in the "MS" school (287 vs. 33, respectively).
 
 Now we do a two-way contingency table using `school` and `Medu`.
 
