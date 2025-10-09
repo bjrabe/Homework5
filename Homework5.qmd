@@ -226,7 +226,7 @@ Next we find the same measures of center and spread for the same variables, but 
 ```{r}
 data_join2 |>
   group_by(school) |>
-  select(absences.x, absences.y, G3.x) |>
+  select(absences.x, absences.y, G3.x, school) |>
   summarize(across(everything(), 
             .fns = list('mean' = mean, 'median' = median, 'sd' = sd, 'IQR' = IQR),
             .names = '{.fn}_{.col}')) |>
@@ -240,7 +240,7 @@ Now we find measures of center and spread for the same 3 variables across two gr
 ```{r}
 data_join2 |>
   group_by(school, sex) |>
-  select(absences.x, absences.y, G3.x) |>
+  select(absences.x, absences.y, G3.x, school, sex) |>
   summarize(across(everything(), 
             .fns = list('mean' = mean, 'median' = median, 'sd' = sd, 'IQR' = IQR),
             .names = '{.fn}_{.col}')) |>
@@ -257,7 +257,88 @@ data_join2 |>
   cor()
 ```
 
-Interesting fact...
+Interestingly age is positively correlated with math class absences. Given the low absolute value of the correlation coefficient, it is a weak linear correlation. 
+
+Next we create a histogram, kernel density plot, and boxplot for two of the numeric variables across one of the categorical variables. We will choose `absences.x` and `G3.x` as our numeric variables, and we choose sex as our categorical variable.
+
+We first create the plots for the `absences.x` variable, starting with the histogram.
+
+```{r}
+data_join2 |>
+  ggplot(aes(absences.x)) + geom_histogram(aes(fill = sex), position = 'dodge') + labs(x = 'Number of absences', y = 'Occurrence Counts', title = 'Comparison of Math Class Absences by Sex')
+```
+
+We see that some females had very long absences. We may surmise that this is due to pregnancy. If we ignore these abnormally long absences, the distribution of absences appears similar between males and females.
+
+Next we create the kernel density plot.
+
+```{r}
+data_join2 |>
+  ggplot(aes(absences.x)) + geom_density(aes(fill = sex), alpha = 0.5) + labs(x = 'Number of absences', y = 'Density', title = 'Comparison of Math Class Absences by Sex')
+```
+
+The kernel density plot gives the same information as the histogram. The distributions of math class absences are similar between males and females, other than a few female students with abnormally long absences. 
+
+Finally we create the boxplot for math class absences by sex.
+
+```{r}
+data_join2 |>
+  ggplot(aes(absences.x)) + geom_boxplot(aes(fill = sex)) + coord_flip() + labs(y = 'Sex', x = 'Number of absences', title = 'Comparison of Math Class Absences by Sex')
+```
+
+We again glean similar information from the boxplot that we gained from the histogram and density plot. The major difference is the boxplot doesn't allow us to compare distributions, only the measures of center and spread, as well as outliers.
+
+Now we create the plots for the `G3.x` variable. 
+
+```{r}
+g <- data_join2 |> ggplot(aes(G3.x))
+
+g + geom_histogram(aes(fill = sex), position = 'dodge') + labs(x = 'Final Math Class Grade', y = 'Occurence Counts', title = 'Comparison of Final Math Class Grade by Sex') 
+
+g + geom_density(aes(fill = sex), alpha = 0.5) + labs(x = 'Final Math Class Grade', y = 'Density', title = 'Comparison of Final Math Class Grade by Sex')
+
+g + geom_boxplot(aes(fill = sex)) + coord_flip() + labs(y = 'Sex', x = 'Final Math Class Grade', title = 'Comparison of Final Math Class Grade by Sex')
+```
+
+From all 3 plots, we see that males tend to have higher final math class scores than females.
+
+Next, we create two scatterplots relating `G3.x` to `age` and `G3.x` to `absences.x`. We jitter the points and color the points by the categorical variable `sex`. 
+
+```{r}
+g <- data_join2 |> ggplot()
+
+g + geom_point(aes(x = age, y = G3.x, color = sex), position = 'jitter') + labs(x = 'Age', y = 'Final Math Class Score', title = 'Final Math Class Score versus Age')
+
+g + geom_point(aes(x = absences.x, y = G3.x, color = sex), position = 'jitter') + labs(x = 'Number of Math Class Absences', y = 'Final Math Class Score', title = 'Final Math Class Score versus Math Class Absences')
+```
+
+From the plot, there does not appear to be a relationship between final math class score and age. There may be a negative relationship between number of math class absences and final math class score, particularly for males. 
+
+Now we repeat the scatter plot step but use faceting to obtain graphs at each level of the variable `Medu`. We just copy the previous code and add a facet layer.
+
+```{r}
+g <- data_join2 |> ggplot()
+
+g + geom_point(aes(x = age, y = G3.x, color = sex), position = 'jitter') + labs(x = 'Age', y = 'Final Math Class Score', title = 'Final Math Class Score versus Age by Mother\'s Education level') + facet_wrap(~Medu)
+
+g + geom_point(aes(x = absences.x, y = G3.x, color = sex), position = 'jitter') + labs(x = 'Number of Math Class Absences', y = 'Final Math Class Score', title = 'Final Math Class Score versus Math Class Absences by Mother\'s Education Level') + facet_wrap(~Medu)
+```
+
+Again, there does not appear to be a relationship between final math class score and age. And there may be a negative relationship between number of math class absences and final math class score.
+
+To conclude this assignment, we repeat the previous step but use two categorical variables in faceting. We again use `Medu` and we now also include `Mjob`. 
+
+```{r}
+g <- data_join2 |> ggplot()
+
+g + geom_point(aes(x = age, y = G3.x, color = sex), position = 'jitter') + labs(x = 'Age', y = 'Final Math Class Score', title = 'Final Math Class Score versus Age by Mother\'s Education level and Job') + facet_wrap(Medu ~ Mjob)
+
+g + geom_point(aes(x = absences.x, y = G3.x, color = sex), position = 'jitter') + labs(x = 'Number of Math Class Absences', y = 'Final Math Class Score', title = 'Final Math Class Score versus Math Class Absences by Mother\'s Education Level and Job') + facet_wrap(Medu ~ Mjob)
+```
+
+The relationship between final math class score and number of math class absences is less clear after faceting on two categorical variables, except for perhaps the category of "Higher_Ed" and "other", where the negative relationship persists. 
+
+
 
 
 

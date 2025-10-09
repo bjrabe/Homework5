@@ -598,14 +598,11 @@ school Higher_Ed Secondary 5th_to_9th Primary None
 <div class="cell">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>data_join2 <span class="sc">|&gt;</span></span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(school) <span class="sc">|&gt;</span></span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(absences.x, absences.y, G3.x) <span class="sc">|&gt;</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(absences.x, absences.y, G3.x, school) <span class="sc">|&gt;</span></span>
 <span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), </span>
 <span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">.fns =</span> <span class="fu">list</span>(<span class="st">'mean'</span> <span class="ot">=</span> mean, <span class="st">'median'</span> <span class="ot">=</span> median, <span class="st">'sd'</span> <span class="ot">=</span> sd, <span class="st">'IQR'</span> <span class="ot">=</span> IQR),</span>
 <span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.names =</span> <span class="st">'{.fn}_{.col}'</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Adding missing grouping variables: `school`</code></pre>
-</div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 13
   school mean_absences.x median_absences.x sd_absences.x IQR_absences.x
@@ -625,16 +622,15 @@ school Higher_Ed Secondary 5th_to_9th Primary None
 <p>The mean number of absences in math class appear higher for Gabriel Pereira students than Mousinho da Silveira students, and yet students in Gabriel Pereira have higher mean math scores (<code>G3.x</code>). Again, we need statistical tests to confirm these differences.</p>
 <p>Now we find measures of center and spread for the same 3 variables across two grouping variables: <code>school</code> and <code>sex</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>data_join2 <span class="sc">|&gt;</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(school, sex) <span class="sc">|&gt;</span></span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(absences.x, absences.y, G3.x) <span class="sc">|&gt;</span></span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), </span>
-<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">.fns =</span> <span class="fu">list</span>(<span class="st">'mean'</span> <span class="ot">=</span> mean, <span class="st">'median'</span> <span class="ot">=</span> median, <span class="st">'sd'</span> <span class="ot">=</span> sd, <span class="st">'IQR'</span> <span class="ot">=</span> IQR),</span>
-<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.names =</span> <span class="st">'{.fn}_{.col}'</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>data_join2 <span class="sc">|&gt;</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(school, sex) <span class="sc">|&gt;</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(absences.x, absences.y, G3.x, school, sex) <span class="sc">|&gt;</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), </span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">.fns =</span> <span class="fu">list</span>(<span class="st">'mean'</span> <span class="ot">=</span> mean, <span class="st">'median'</span> <span class="ot">=</span> median, <span class="st">'sd'</span> <span class="ot">=</span> sd, <span class="st">'IQR'</span> <span class="ot">=</span> IQR),</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.names =</span> <span class="st">'{.fn}_{.col}'</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Adding missing grouping variables: `school`, `sex`
-`summarise()` has grouped output by 'school'. You can override using the
+<pre><code>`summarise()` has grouped output by 'school'. You can override using the
 `.groups` argument.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
@@ -663,9 +659,9 @@ school Higher_Ed Secondary 5th_to_9th Primary None
 <p>It appears from the output that female students at Gabriel Pereira may have lower math scores on average than male students, but that there is no difference in math scores between male and female students at Mousinho da Silveira. Again, we emphasize statistical tests are needed to assess the probability that the observed difference in mean/median test scores is do to sampling variability rather than true population differences.</p>
 <p>Next we create a correlation matrix between all the numeric variables.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>data_join2 <span class="sc">|&gt;</span></span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(age, G1.x, G2.x, G3.x, absences.x, G1.y, G2.y, G3.y, absences.y) <span class="sc">|&gt;</span></span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>data_join2 <span class="sc">|&gt;</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(age, G1.x, G2.x, G3.x, absences.x, G1.y, G2.y, G3.y, absences.y) <span class="sc">|&gt;</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                    age        G1.x        G2.x        G3.x  absences.x
 age         1.000000000 -0.11037935 -0.18618740 -0.20603186  0.14392517
@@ -689,7 +685,149 @@ G3.y        0.82541432  0.89430982  1.000000000 -0.07145201
 absences.y -0.09864117 -0.12070727 -0.071452010  1.00000000</code></pre>
 </div>
 </div>
-<p>Interesting fact…</p>
+<p>Interestingly age is positively correlated with math class absences. Given the low absolute value of the correlation coefficient, it is a weak linear correlation.</p>
+<p>Next we create a histogram, kernel density plot, and boxplot for two of the numeric variables across one of the categorical variables. We will choose <code>absences.x</code> and <code>G3.x</code> as our numeric variables, and we choose sex as our categorical variable.</p>
+<p>We first create the plots for the <code>absences.x</code> variable, starting with the histogram.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>data_join2 <span class="sc">|&gt;</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(absences.x)) <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sex), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Number of absences'</span>, <span class="at">y =</span> <span class="st">'Occurrence Counts'</span>, <span class="at">title =</span> <span class="st">'Comparison of Math Class Absences by Sex'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see that some females had very long absences. We may surmise that this is due to pregnancy. If we ignore these abnormally long absences, the distribution of absences appears similar between males and females.</p>
+<p>Next we create the kernel density plot.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>data_join2 <span class="sc">|&gt;</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(absences.x)) <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sex), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Number of absences'</span>, <span class="at">y =</span> <span class="st">'Density'</span>, <span class="at">title =</span> <span class="st">'Comparison of Math Class Absences by Sex'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The kernel density plot gives the same information as the histogram. The distributions of math class absences are similar between males and females, other than a few female students with abnormally long absences.</p>
+<p>Finally we create the boxplot for math class absences by sex.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>data_join2 <span class="sc">|&gt;</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(absences.x)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sex)) <span class="sc">+</span> <span class="fu">coord_flip</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">'Sex'</span>, <span class="at">x =</span> <span class="st">'Number of absences'</span>, <span class="at">title =</span> <span class="st">'Comparison of Math Class Absences by Sex'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We again glean similar information from the boxplot that we gained from the histogram and density plot. The major difference is the boxplot doesn’t allow us to compare distributions, only the measures of center and spread, as well as outliers.</p>
+<p>Now we create the plots for the <code>G3.x</code> variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> data_join2 <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(G3.x))</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sex), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Final Math Class Grade'</span>, <span class="at">y =</span> <span class="st">'Occurence Counts'</span>, <span class="at">title =</span> <span class="st">'Comparison of Final Math Class Grade by Sex'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sex), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Final Math Class Grade'</span>, <span class="at">y =</span> <span class="st">'Density'</span>, <span class="at">title =</span> <span class="st">'Comparison of Final Math Class Grade by Sex'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-26-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sex)) <span class="sc">+</span> <span class="fu">coord_flip</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">'Sex'</span>, <span class="at">x =</span> <span class="st">'Final Math Class Grade'</span>, <span class="at">title =</span> <span class="st">'Comparison of Final Math Class Grade by Sex'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-26-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From all 3 plots, we see that males tend to have higher final math class scores than females.</p>
+<p>Next, we create two scatterplots relating <code>G3.x</code> to <code>age</code> and <code>G3.x</code> to <code>absences.x</code>. We jitter the points and color the points by the categorical variable <code>sex</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> data_join2 <span class="sc">|&gt;</span> <span class="fu">ggplot</span>()</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> G3.x, <span class="at">color =</span> sex), <span class="at">position =</span> <span class="st">'jitter'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Age'</span>, <span class="at">y =</span> <span class="st">'Final Math Class Score'</span>, <span class="at">title =</span> <span class="st">'Final Math Class Score versus Age'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> absences.x, <span class="at">y =</span> G3.x, <span class="at">color =</span> sex), <span class="at">position =</span> <span class="st">'jitter'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Number of Math Class Absences'</span>, <span class="at">y =</span> <span class="st">'Final Math Class Score'</span>, <span class="at">title =</span> <span class="st">'Final Math Class Score versus Math Class Absences'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-27-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From the plot, there does not appear to be a relationship between final math class score and age. There may be a negative relationship between number of math class absences and final math class score, particularly for males.</p>
+<p>Now we repeat the scatter plot step but use faceting to obtain graphs at each level of the variable <code>Medu</code>. We just copy the previous code and add a facet layer.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> data_join2 <span class="sc">|&gt;</span> <span class="fu">ggplot</span>()</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> G3.x, <span class="at">color =</span> sex), <span class="at">position =</span> <span class="st">'jitter'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Age'</span>, <span class="at">y =</span> <span class="st">'Final Math Class Score'</span>, <span class="at">title =</span> <span class="st">'Final Math Class Score versus Age by Mother</span><span class="sc">\'</span><span class="st">s Education level'</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Medu)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> absences.x, <span class="at">y =</span> G3.x, <span class="at">color =</span> sex), <span class="at">position =</span> <span class="st">'jitter'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Number of Math Class Absences'</span>, <span class="at">y =</span> <span class="st">'Final Math Class Score'</span>, <span class="at">title =</span> <span class="st">'Final Math Class Score versus Math Class Absences by Mother</span><span class="sc">\'</span><span class="st">s Education Level'</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Medu)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-28-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Again, there does not appear to be a relationship between final math class score and age. And there may be a negative relationship between number of math class absences and final math class score.</p>
+<p>To conclude this assignment, we repeat the previous step but use two categorical variables in faceting. We again use <code>Medu</code> and we now also include <code>Mjob</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> data_join2 <span class="sc">|&gt;</span> <span class="fu">ggplot</span>()</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> G3.x, <span class="at">color =</span> sex), <span class="at">position =</span> <span class="st">'jitter'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Age'</span>, <span class="at">y =</span> <span class="st">'Final Math Class Score'</span>, <span class="at">title =</span> <span class="st">'Final Math Class Score versus Age by Mother</span><span class="sc">\'</span><span class="st">s Education level and Job'</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(Medu <span class="sc">~</span> Mjob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> absences.x, <span class="at">y =</span> G3.x, <span class="at">color =</span> sex), <span class="at">position =</span> <span class="st">'jitter'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Number of Math Class Absences'</span>, <span class="at">y =</span> <span class="st">'Final Math Class Score'</span>, <span class="at">title =</span> <span class="st">'Final Math Class Score versus Math Class Absences by Mother</span><span class="sc">\'</span><span class="st">s Education Level and Job'</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(Medu <span class="sc">~</span> Mjob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Homework5_files/figure-html/unnamed-chunk-29-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The relationship between final math class score and number of math class absences is less clear after faceting on two categorical variables, except for perhaps the category of “Higher_Ed” and “other”, where the negative relationship persists.</p>
 
 
 </section>
